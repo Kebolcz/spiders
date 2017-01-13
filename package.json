@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "async": "^2.1.4",
+    "crawler": "^1.0.2",
+    "jsdom": "^9.9.1",
+    "mkdirp": "^0.5.1",
+    "superagent": "^3.3.2",
+    "superagent-charset": "^1.1.1"
+  }
+}
