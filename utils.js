@@ -1,5 +1,6 @@
 var fs = require('fs');
 var mkdirp = require('mkdirp');
+var iconv = require('iconv-lite');
 
 module.exports.writeContent = function(current_book, chapter, content){
 	fs.writeFile('/home/Kebolcz/crawler/dist/' + current_book.title + '/'+ chapter + '.html', content, function(err){
@@ -28,3 +29,22 @@ module.exports.mkdir = function(folder){
 		console.log('This path is already exist.');
 	}
 };
+
+module.exports.writeChapter = function(chapter, content){
+	//var str = iconv.encode(content, 'utf-8');
+    var str = iconv.encode(content, 'gbk');
+
+	fs.writeFile('/home/Kebolcz/crawler/dist/bigHero/'+ chapter + '.html', str, function(err){
+		if (err) throw err;
+    	console.log( chapter + ' is saved!');
+	});
+};
+
+module.exports.writeConfig = function (book){
+  var content =  JSON.stringify(book, null, 4); // Indented 4 spaces
+  
+  fs.writeFile('/home/Kebolcz/crawler/dist/bigHero/' + book.title + '.json', content, function (err) {
+    if (err) throw err;
+    console.log('JSON is saved!');
+  });
+}

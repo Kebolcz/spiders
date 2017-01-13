@@ -1,13 +1,36 @@
 var Crawler = require("crawler");
 var url = require('url');
 var jsdom = require('jsdom');
- 
+
 var current_book = {};
+
+var mkdir = require('./utils').mkdir;
+var writeConfig = require('./utils').writeConfig;
+var writeChapter = require('./utils').writeChapter;
 
 var c = new Crawler({
     jQuery : jsdom,
-    maxConnections : 10,
+    maxConnections : 2000,
+    forceUTF8:true,
+    //incomingEncoding: 'GBK',
     // This will be called for each crawled page 
+    callback : function (error, res, done) {
+        if(error){
+            console.log(error);
+        }else{
+
+        }
+        done();
+    }
+});
+ 
+// Queue just one URL, with default callback 
+//c.queue('http://www.37zw.com/0/330/');
+c.queue([{
+    uri: 'http://www.37zw.com/0/330/',
+    jQuery: jsdom,
+    forceUTF8:true,
+    //incomingEncoding: 'GBK',
     callback : function (error, res, done) {
         if(error){
             console.log(error);
@@ -22,13 +45,14 @@ var c = new Crawler({
             current_book.intro = $('#intro').html()
             current_book.chapters = [];
 
+            mkdir('bigHero');
+
             for(var i = 0; i< urls.length; i++){
                 var url = urls[i]
                 
                 var _url = $(url).attr('href')+"";
                 var num = _url.replace('.html','');
                 var title = $(url).text();
-
 
                 current_book.chapters.push({
                   num: num,
@@ -37,37 +61,29 @@ var c = new Crawler({
                 })
               }
 
-            console.log(current_book);
+            console.log(current_book);   
 
-            //存储每一章内容的数组
-            var current_Chapter = [];
+            writeConfig(current_book);
 
-            //对每一章做处理的func
-            function one(chapter){
-              //console.log(chapter);
-              c.queue([{
-                uri: 'http://www.37zw.com/0/330/' + chapter.num + '.html',
-                jQuery: jsdom,
-                // The global callback won't be called
-                callback: function (error, res, done) {
-                    var $ = res.$;
-                    var content = $('#content').html();
-                    current_Chapter.push({
-                        Num : chapter.num,
-                        C_title : chapter.title,
-                        content : content
-                    });
-
-                    console.log(current_Chapter);
-                }
-              }]);
-            }
-
-            current_book.chapters.map(one);
+            current_book.chapters.map(dealEachChapter);
         }
-        done();
+        //done();
     }
-});
- 
-// Queue just one URL, with default callback 
-c.queue('http://www.37zw.com/0/330/');
+}]);
+
+
+//对每一章做处理的func
+function dealEachChapter(chapter){
+  //console.log(chapter);
+  c.queue([{
+    uri: 'http://www.37zw.com/0/330/' + chapter.num + '.html',
+    jQuery: jsdom,
+    forceUTF8:true,
+    //incomingEncoding: 'GBK',
+    // The global callback won't be called
+    callback: function (error, res, done) {
+        var $ = res.$;
+        writeChapter(chapter.title, $('#content').html());
+    }
+  }]);
+}
