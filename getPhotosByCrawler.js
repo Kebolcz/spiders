@@ -25,17 +25,19 @@ for (var i = 1; i < 30; i++) {
 }
 
 
-var download = function(url, dir, filename) {
-    request.head(url, function(err, res, body) {
+var download = function (url, dir, filename) {
+    request.head(url, function (err, res, body) {
+        console.log("downloading...");
         request(url).pipe(fs.createWriteStream("/home/Kebolcz/crawler/dist/" + dir + "/" + filename));
+        console.log('下载完成');
     });
 };
 
 
 // var chaptersUri = [];
-var fetchContent = function(url, folder) {
+var fetchContent = function (url, folder) {
     superagent.get(url)
-        .end(function(err, res) {
+        .end(function (err, res) {
             if (err) {
                 return console.error(err);
             }
@@ -54,13 +56,12 @@ var fetchContent = function(url, folder) {
                     name: name
                 });
             }
-            console.log("图片图片图片图片图片图片图片" + chapters);
-            chapters.forEach(function(obj) {
+            // console.log("图片图片图片图片图片图片图片" + chapters);
+            chapters.forEach(function (obj) {
                 console.log(obj);
-                if(typeof(obj.url) != 'undefined' && typeof(obj.name) != 'undefined'){
+                if (typeof (obj.url) != 'undefined' && typeof (obj.name) != 'undefined') {
                     console.log('正在下载' + obj.url);
                     download(obj.url, folder, Math.floor(Math.random() * 100000) + obj.name.substring(-4, 4));
-                    console.log('下载完成');
                 }
             });
         })
@@ -72,7 +73,7 @@ var c = new Crawler({
     maxConnections: 2,
     forceUTF8: true,
     // This will be called for each crawled page 
-    callback: function(error, res, done) {
+    callback: function (error, res, done) {
         if (error) {
             console.log(error);
         } else {
@@ -82,7 +83,7 @@ var c = new Crawler({
             var pageNum = $(".pg strong").text().trim();
             var tbodys = $("#threadlisttableid tbody[id^='normalthread']");
             console.log('fetch page' + pageNum + ' success!');
-            tbodys.map(function(index, element) {
+            tbodys.map(function (index, element) {
                 if ($(element).find('.viewnum').text().trim() >= stars) {
                     console.log('this is the a good site************************');
                     var chapterHref = $(element).find('.xst').attr('href');
